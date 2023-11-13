@@ -32,7 +32,7 @@
 ## Run
 1. Run the command in the upper-level directory with `pyproject.toml`
 ```commandline
-poetry run python3 -m twitter
+poetry run python3 -m twitter_user_tweet_crawler
 ```
 2. Log in to Twitter
 3. Press the Enter key

@@ -32,7 +32,7 @@
 ## 运行
 1. 在有`pyproject.toml`的上级目录运行指令
 ```commandline
-poetry run python3 -m twitter
+poetry run python3 -m twitter_user_tweet_crawler
 ```
 2. 登录推特
 3. 按下回车键
