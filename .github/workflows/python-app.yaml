@@ -1,0 +1,56 @@
+name: Python application
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+    paths:
+      - '**.py'
+      - '**.yml'
+      - '**.yaml'
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Chrome
+      run: |
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/119.0.6045.105/linux64/chromedriver-linux64.zip
+        sudo rm -rf /usr/bin/chromedriver
+        sudo mkdir /usr/bin/chromedriver
+        sudo unzip chromedriver-linux64.zip -d /usr/bin/chromedriver
+        sudo dpkg -i google-chrome-stable_current_amd64.deb
+        sudo apt-get install -f
+    - uses: actions/checkout@v3
+    - name: Cache Poetry dependencies
+      id: check_cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install Poetry
+      run: |
+        pip install poetry
+    - name: Install dependencies
+      if: steps.check_cache.outputs.cache-hit != 'true'
+      run: |
+        python -m pip install --upgrade pip
+        python -m poetry install
+    - name: Test with unittest
+      run: |
+        python -m poetry run python -m unittest tests.CI
+        cd twitter_user_tweet_crawler
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: debug-artifact
+        path: debug.png
