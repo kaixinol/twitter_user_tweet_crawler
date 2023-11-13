@@ -24,7 +24,7 @@
   3. 比方说你需要3个线程同时工作
   4. 就新建`/twitter_user_tweet_crawler/userdata/1` `/twitter_user_tweet_crawler/userdata/2` `/twitter_user_tweet_crawler/userdata/3`  `/twitter_user_tweet_crawler/userdata/4` 
 - 预配置 Chrome
-  1. 执行指令`/usr/bin/google-chrome-stable --user-data-dir=<data_dir>/2`
+  1. 执行指令`/usr/bin/google-chrome-stable --user-data-dir=<data_dir>/1`
   2. 安装Tampermonkey拓展
   3. Tampermonkey拓展新建js，拷贝`script.js`中的内容之后<kbd>Ctrl+S</kbd>
   4. 更改浏览器保存路径为`/twitter_user_tweet_crawler/output/res`

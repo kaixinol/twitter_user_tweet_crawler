@@ -24,7 +24,7 @@
    3. For example, you need 3 threads to work at the same time
    4. Just create new `/twitter_user_tweet_crawler/userdata/1` `/twitter_user_tweet_crawler/userdata/2` `/twitter_user_tweet_crawler/userdata/3` `/twitter_user_tweet_crawler/userdata/4`
 - Pre-configuration of Chrome
-   1. Execute the command `/usr/bin/google-chrome-stable --user-data-dir=<data_dir>/2`
+   1. Execute the command `/usr/bin/google-chrome-stable --user-data-dir=<data_dir>/1`
    2. Install Tampermonkey extension
    3. Tampermonkey expands and creates new js, and then copies the content in `script.js`<kbd>Ctrl+S</kbd>
    4. Change the browser save path to `/twitter_user_tweet_crawler/output/res`
