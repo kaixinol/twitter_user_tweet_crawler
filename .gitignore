@@ -9,7 +9,7 @@ log
 .idea
 # C extensions
 *.so
-
+debug.png
 # Distribution / packaging
 .Python
 build/
