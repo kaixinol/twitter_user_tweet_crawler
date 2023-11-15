@@ -32,9 +32,10 @@ class ThreadPool:
         elements = self.browser.index(index)
         try:
             future.result()
-        except NoSuchElementException:
-            pass
         # By default, `concurrent.futures` will silently log errors but will not raise them
         # Throw the error directly
-        self.browser[elements].__dict__['is_using'] = False
-        self.check_and_work()
+        except NoSuchElementException:
+            pass
+        finally:
+            self.browser[elements].__dict__['is_using'] = False
+            self.check_and_work()

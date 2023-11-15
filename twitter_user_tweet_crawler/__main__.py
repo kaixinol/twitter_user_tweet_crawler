@@ -12,7 +12,6 @@ from selenium.webdriver.common.by import By
 from .browser import get_browser, get_multiple_browsers
 from .pool import ThreadPool
 from .util.config import config, work_directory, set_work_directory
-from .util.sql import is_id_exists
 
 
 def main():
@@ -79,7 +78,7 @@ def main():
             for i in links:
                 full_url = i.get_attribute("href")
                 tweet_id = urlparse(full_url).path.split('/')[-1]
-                if tweet_id not in data_dict and not is_id_exists(int(tweet_id)):
+                if tweet_id not in data_dict:
                     data_dict[tweet_id] = Tweet(full_url)
                     pool.jobs.append(data_dict[tweet_id].load_data)
                     logger.info(full_url)
@@ -91,7 +90,7 @@ def main():
 if __name__ == "__main__":
     set_work_directory(Path(__file__).absolute().parent)
     logger.add(work_directory / "log/{time:YYYY-MM-DD}.log", rotation="00:00",
-               level="INFO",
+               level="ERROR",
                encoding="utf-8", format="{time} | {level} | {message}", enqueue=True)
     Path(Path(__file__).absolute().parent / 'output/res').mkdir(parents=True, exist_ok=True)
     config.load("config.yaml")

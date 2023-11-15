@@ -12,7 +12,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from urllib.parse import quote
 from .__main__ import *
 from .util.config import work_directory
-from .util.sql import insert_new_record
+from .util.sql import insert_new_record, is_id_exists
 
 
 class Tweet:
@@ -26,7 +26,7 @@ class Tweet:
     link: str
 
     def __init__(self, link: str):
-        self.post_time = int(datetime.now().timestamp())
+        self.post_time = 0
         self.post_id = int(urlparse(link).path.split('/')[-1])
         self.link = link
         self.text = ''
@@ -43,8 +43,10 @@ class Tweet:
 
     @logger.catch
     def commit_sqlite(self):
-        insert_new_record(self.post_id, self.post_time, self.location)
+        if not is_id_exists(int(self.post_id)):
+            insert_new_record(self.post_id, self.post_time, self.location)
 
+    @logger.catch
     def load_data(self, available_driver: WebDriver):
 
         def replace_emoji(string: str) -> str:
