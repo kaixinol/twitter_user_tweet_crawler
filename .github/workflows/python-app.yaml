@@ -17,7 +17,7 @@ jobs:
     - name: Install Chrome
       run: |
         wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        wget -O chromedriver.zip `curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json | jq -r '.channels.Stable.downloads.chromedriver[0].url'`
+        wget -O chromedriver-linux64 `curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json | jq -r '.channels.Stable.downloads.chromedriver[0].url'`
         sudo rm -rf /usr/bin/chromedriver
         sudo mkdir /usr/bin/chromedriver
         sudo unzip chromedriver-linux64.zip -d /usr/bin/chromedriver
