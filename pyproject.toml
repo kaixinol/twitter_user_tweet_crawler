@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "twitter_user_tweet_crawler"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["kaesinol <keiplyer@gmail.com>"]
 readme = "README.md"

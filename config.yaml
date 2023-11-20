@@ -1,2 +1,8 @@
-{ "proxy": { "http": "socks5://127.0.0.1:7890", "https": "socks5://127.0.0.1:7890" }, "max_threads": 2,"USER_AGENT": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"}
-,"user_data_dir": "/media/Data/Project/XiaoShi/twitter/twitter_user_tweet_crawler/userdata"}
+{ "proxy":
+    {"http": "socks5://127.0.0.1:7890", "https": "socks5://127.0.0.1:7890" }, "max_threads": 1,
+  "header": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"}
+,"user_data_dir": "/media/Data/Project/twitter_user_tweet_crawler/twitter_user_tweet_crawler/userdata",
+  "inject_js": "/media/Data/Project/twitter_user_tweet_crawler/script.js",
+  "save": "/media/Data/Project/twitter_user_tweet_crawler/output",
+  "user": "s_nample"
+}

@@ -22,7 +22,7 @@ class ThreadPool:
             if not i.__dict__['is_using']:
                 i: WebDriver
                 i.__dict__['is_using'] = True
-                job = self.jobs.pop()
+                job = self.jobs.pop(0)
                 callback: Future = self.pool.submit(job, i)
                 callback.add_done_callback(lambda future: self._on_job_complete(i, callback))
                 return

@@ -1,3 +1,4 @@
+// ** Modified from https://greasyfork.org/en/scripts/423001-twitter-media-downloader
 // ==UserScript==
 // @name        Twitter Media Downloader
 // @name:ja     Twitter Media Downloader
@@ -23,12 +24,36 @@
 /* jshint esversion: 8 */
 
 const filename = 'twitter_{user-name}(@{user-id})_{date-time}_{status-id}_{file-type}';
+function GM_registerMenuCommand(...args) {}
+function GM_setValue(name, value) {
+  return new Promise((resolve, reject) => {
+    try {
+      localStorage.setItem(name, JSON.stringify(value));
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
+function GM_getValue(name, defaultValue) {
+  return new Promise((resolve, reject) => {
+    try {
+      const value = JSON.parse(localStorage.getItem(name));
+      resolve(value === null ? defaultValue : value);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+function GM_download(...args) {}
+document.fileList = [];
+document.fileName = [];
+document.isParsed = false;
 const TMD = (function () {
   let lang, host, history, show_sensitive, is_tweetdeck;
   return {
     init: async function () {
-      GM_registerMenuCommand((this.language[navigator.language] || this.language.en).settings, this.settings);
       document.head.insertAdjacentHTML('beforeend', '<style>' + this.css + '</style>');
       lang = this.language[document.querySelector('html').lang] || this.language.en;
       host = location.hostname;
@@ -74,23 +99,6 @@ const TMD = (function () {
           if (btn_show) btn_show.click();
         }
       }
-      let imgs = article.querySelectorAll('a[href*="/photo/"]');
-      if (imgs.length > 1) {
-        let status_id = article.querySelector('a[href*="/status/"]').href.split('/status/').pop().split('/').shift();
-        let btn_group = article.querySelector('div[role="group"]:last-of-type');
-        let btn_share = Array.from(btn_group.querySelectorAll(':scope>div>div')).pop().parentNode;
-        imgs.forEach(img => {
-          let index = img.href.split('/status/').pop().split('/').pop();
-          let btn_down = btn_share.cloneNode(true);
-          btn_down.querySelector('svg').innerHTML = this.svg;
-          let is_exist = history.indexOf(status_id) >= 0;
-          this.status(btn_down, 'tmd-down');
-          this.status(btn_down, 'tmd-img');
-          this.status(btn_down, 'download', lang.download);
-          img.parentNode.appendChild(btn_down);
-          btn_down.onclick = () => this.click(btn_down, status_id, is_exist, index);
-        });
-      }
     },
     click: async function (btn, status_id, is_exist, index) {
       if (btn.classList.contains('loading')) return;
@@ -121,7 +129,6 @@ const TMD = (function () {
           info['file-ext'] = info.file.split('.').pop();
           info['file-type'] = media.type.replace('animated_', '');
           info.out = (out.replace(/\.?{file-ext}/, '') + ((medias.length > 1 || index) && !out.match('{file-name}') ? '-' + (index ? index - 1 : i) : '') + '.{file-ext}').replace(/{([^{}:]+)(:[^{}]+)?}/g, (match, name) => info[name]);
-          document.fileList.push(info.out);
           this.downloader.add({
             url: info.url,
             name: info.out,
@@ -147,7 +154,7 @@ const TMD = (function () {
       } else {
         this.status(btn, 'failed', 'MEDIA_NOT_FOUND');
       }
-      document.isDownloaded=true;
+      document.isParsed = true;
     },
     status: function (btn, css, title, style) {
       if (css) {
@@ -339,24 +346,10 @@ const TMD = (function () {
         },
         start: function (task) {
           this.update();
-          return new Promise(resolve => {
-            GM_download({
-              url: task.url,
-              name: task.name,
-              onload: result => {
-                task.onload();
-                resolve();
-              },
-              onerror: result => {
-                this.retry(task, result);
-                resolve();
-              },
-              ontimeout: result => {
-                this.retry(task, result);
-                resolve();
-              }
-            });
-          });
+          document.fileList.push(task.url);
+          document.fileName.push(task.name);
+          task.onload();
+          return Promise.resolve();
         },
         retry: function (task, result) {
           retry += 1;

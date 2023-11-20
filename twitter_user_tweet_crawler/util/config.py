@@ -7,7 +7,10 @@ class Config:
     proxy: dict | None
     max_threads: int
     user_data_dir: str
-    USER_AGENT: dict
+    header: dict
+    inject_js: str
+    save: str
+    user: str
 
     def load(self, setting: dict | str | Path):
         if isinstance(setting, dict):

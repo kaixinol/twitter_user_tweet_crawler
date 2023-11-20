@@ -39,7 +39,7 @@ def main():
         return driver.find_elements(*selector)
 
     selector = (By.XPATH, '//*/div[2]/div/div[3]/a[@role="link"]')
-    Path(work_directory / 'output/res').mkdir(exist_ok=True, parents=True)
+    Path(config.save / 'res').mkdir(exist_ok=True, parents=True)
 
     driver = get_browser()
 
@@ -65,12 +65,12 @@ def main():
     cookie = driver.get_cookies()
     for drivers in work_list:
         set_cookie(drivers)
-    driver.get("https://twitter.com/jack")
+    driver.get("https://twitter.com/"+ config.user)
     data_dict = {}
     pool = ThreadPool(work_list, tweet_executor)
 
     while True:
-        # 循环下拉滚动条
+        # Looping drop-down scroll bar
         driver.execute_script("window.scrollBy(0, 200)")
         sleep(1)
         try:

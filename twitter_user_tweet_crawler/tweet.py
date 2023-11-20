@@ -1,18 +1,29 @@
+import concurrent.futures
 import re
 from datetime import datetime
+from pathlib import Path
+from time import sleep
 
 from emoji import is_emoji
 from html2text import html2text
+from loguru import logger
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table
 from selenium.webdriver import ActionChains
+from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from urllib.parse import quote
-from .__main__ import *
-from .util.config import work_directory
+from urllib.parse import quote, urlparse
+from .util.config import config
 from .util.sql import insert_new_record, is_id_exists
+from requests import get
+
+inject: str
+inject_js = config.inject_js
+with open(config.inject_js, 'r') as fp:
+    inject = fp.read()
 
 
 class Tweet:
@@ -24,6 +35,7 @@ class Tweet:
     via_app: str | None
     location: str | None
     link: str
+    driver: WebDriver
 
     def __init__(self, link: str):
         self.post_time = 0
@@ -35,10 +47,15 @@ class Tweet:
         self.via_app = None
         self.location = None
 
+    @logger.catch()
+    def download_res(self, url: str, path: str):
+        with open(Path(config.save) / 'res' / path, 'wb') as fp:
+            fp.write(get(url, proxies=config.proxy, headers=config.header).content)
+
     @logger.catch
     def write_markdown(self):
-        if not Path(work_directory / 'output' / f'{self.post_id}.md').exists():
-            with open(work_directory / 'output' / f'{self.post_id}.md', 'w') as f:
+        if not (Path(config.save) / f'{self.post_id}.md').exists():
+            with open(Path(config.save) / f'{self.post_id}.md', 'w') as f:
                 f.write(self.text)
 
     @logger.catch
@@ -48,6 +65,7 @@ class Tweet:
 
     @logger.catch
     def load_data(self, available_driver: WebDriver):
+        self.driver = available_driver
 
         def replace_emoji(string: str) -> str:
             if re.search(r'\!\[(.*?)\]\(https://.*\.twimg\.com/emoji/(.*?)\.svg\)', string, re.MULTILINE):
@@ -59,36 +77,40 @@ class Tweet:
                 elemet = available_driver.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             except:
                 return
-            sleep(3)
+            sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
-            available_driver.execute_script("document.isDownloaded = false;document.fileList=[];")
-            while not available_driver.execute_script("return document.isDownloaded===true;"):
-                sleep(1)
-            self.video = list(available_driver.execute_script("return document.fileList"))[0]
+            while available_driver.execute_script("return document.isParsed;") is False:
+                sleep(0.5)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
+                             available_driver.execute_script("return document.fileName;"))
+            self.video = available_driver.execute_script("return document.fileName;")[0]
 
         def get_img():
             try:
                 elemet = available_driver.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             except:
                 return
-            sleep(3)
+            sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
-            available_driver.execute_script("document.isDownloaded = false;document.fileList=[];")
-            while not available_driver.execute_script("return document.isDownloaded===true;"):
-                sleep(1)
-            self.img = list(available_driver.execute_script("return document.fileList"))
+            while available_driver.execute_script("return document.isParsed;") is False:
+                sleep(0.5)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
+                             available_driver.execute_script("return document.fileName;"))
+            self.img = available_driver.execute_script("return document.fileName;")
 
         def click_sensitive_element():
             try:
-                items = available_driver.find_elements(By.XPATH, "//span[text()='查看']")
-                for i in items:
-                    ActionChains(available_driver).move_to_element(i).click().perform()
+                items = available_driver.find_element(By.XPATH, "//span[text()='查看']")
+                ActionChains(available_driver).move_to_element(i).click().perform()
             except:
                 pass
             sleep(0.5)
 
         result = None
         available_driver.get(self.link)
+        available_driver.execute_script(inject)
         wait = WebDriverWait(available_driver, 20)
         element = wait.until(EC.presence_of_element_located((By.XPATH, '//*/time/ancestor::*[3]')))
         time_stamp = element.find_element(By.XPATH, '//time').get_attribute('datetime')
@@ -153,9 +175,9 @@ class Tweet:
             self.via_app = html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
         if self.img:
             for i in self.img:
-                self.text += f'\n![](./res/{quote(i)})\n'
+                self.text += f'\n![]({config.save}/res/{quote(str(i))})\n'
         if video:
-            self.text += f'<video src="./res/{quote(str(self.video))}"></video>\n'
+            self.text += f'<video src="{config.save}/res/{quote(str(self.video))}"></video>\n'
         if self.location:
             self.text += 'Location:' + self.location + '\n'
         if self.via_app:
