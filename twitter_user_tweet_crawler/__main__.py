@@ -39,7 +39,7 @@ def main():
         return driver.find_elements(*selector)
 
     selector = (By.XPATH, '//*/div[2]/div/div[3]/a[@role="link"]')
-    Path(config.save / 'res').mkdir(exist_ok=True, parents=True)
+    (Path(config.save) / 'res').mkdir(exist_ok=True, parents=True)
 
     driver = get_browser()
 
