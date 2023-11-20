@@ -1,9 +1,11 @@
 from concurrent.futures import ThreadPoolExecutor, Future
+from time import sleep
 from typing import Callable
 
-from loguru import logger
-from selenium.common import NoSuchElementException
+from rich.prompt import Confirm
 from selenium.webdriver.chrome.webdriver import WebDriver
+
+slow_mode = Confirm.ask("Do you want to enable slow mode?", default=False)
 
 
 class ThreadPool:
@@ -34,5 +36,7 @@ class ThreadPool:
         # By default, `concurrent.futures` will silently log errors but will not raise them
         # Throw the error directly
         finally:
+            if slow_mode:
+                sleep(30)
             self.browser[elements].__dict__['is_using'] = False
             self.check_and_work()

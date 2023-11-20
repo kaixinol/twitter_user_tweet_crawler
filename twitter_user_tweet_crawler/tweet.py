@@ -33,6 +33,7 @@ def catch(func):
             return func(self, available_driver)
         except:
             logger.error(available_driver.current_url)
+
     return wrapper
 
 
@@ -68,7 +69,7 @@ class Tweet:
             with open(Path(config.save) / f'{self.post_id}.md', 'w') as f:
                 f.write(self.text)
 
-    @logger.catch()
+    @logger.catch
     def commit_sqlite(self):
         if not is_id_exists(int(self.post_id)):
             insert_new_record(self.post_id, self.post_time, self.location)

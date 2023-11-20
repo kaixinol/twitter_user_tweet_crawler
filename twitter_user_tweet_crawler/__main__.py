@@ -55,7 +55,7 @@ def main():
         input("Cookie cache was not found. Please press Enter after logging in.")
         write_config(driver.get_cookies())
     else:
-        use_cache = Confirm().ask("Cookie cache detected, do you want to use it?", default=True)
+        use_cache = Confirm.ask("Cookie cache detected, do you want to use it?", default=True)
         if not use_cache:
             input("Please press Enter after logging in")
             write_config(driver.get_cookies())
@@ -71,14 +71,14 @@ def main():
 
     while True:
         # Looping drop-down scroll bar
-        driver.execute_script("window.scrollBy(0, 200)")
+        driver.execute_script("window.scrollBy(0, 300)")
         sleep(1)
         try:
             links = get_items_need_handle()
             for i in links:
                 full_url = i.get_attribute("href")
                 tweet_id = urlparse(full_url).path.split('/')[-1]
-                if tweet_id not in data_dict:
+                if tweet_id not in data_dict and not (Path(config.save) / f'{tweet_id}.md').exists():
                     data_dict[tweet_id] = Tweet(full_url)
                     pool.jobs.append(data_dict[tweet_id].load_data)
                     logger.info(full_url)
