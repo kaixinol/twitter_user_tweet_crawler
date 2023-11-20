@@ -65,7 +65,7 @@ def main():
     cookie = driver.get_cookies()
     for drivers in work_list:
         set_cookie(drivers)
-    driver.get("https://twitter.com/"+ config.user)
+    driver.get("https://twitter.com/" + config.user)
     data_dict = {}
     pool = ThreadPool(work_list, tweet_executor)
 

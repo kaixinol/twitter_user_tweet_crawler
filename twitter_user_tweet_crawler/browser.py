@@ -1,13 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-from twitter_user_tweet_crawler.util.config import config
-
-browsers = 0
 
 
-def get_browser(headless: bool = False, id=None) -> WebDriver:
-    global browsers
+def get_browser(headless: bool = False) -> WebDriver:
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--blink-settings=imagesEnabled=false')
     chrome_options.add_argument('--disable-remote-fonts')

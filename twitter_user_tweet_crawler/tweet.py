@@ -3,10 +3,12 @@ import re
 from datetime import datetime
 from pathlib import Path
 from time import sleep
+from urllib.parse import quote, urlparse
 
 from emoji import is_emoji
 from html2text import html2text
 from loguru import logger
+from requests import get
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table
@@ -15,10 +17,9 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from urllib.parse import quote, urlparse
+
 from .util.config import config
 from .util.sql import insert_new_record, is_id_exists
-from requests import get
 
 inject: str
 inject_js = config.inject_js
@@ -47,7 +48,7 @@ class Tweet:
         self.via_app = None
         self.location = None
 
-    @logger.catch()
+    @logger.catch
     def download_res(self, url: str, path: str):
         with open(Path(config.save) / 'res' / path, 'wb') as fp:
             fp.write(get(url, proxies=config.proxy, headers=config.header).content)
@@ -101,6 +102,7 @@ class Tweet:
             self.img = available_driver.execute_script("return document.fileName;")
 
         def click_sensitive_element():
+            # TODO
             try:
                 items = available_driver.find_element(By.XPATH, "//span[text()='查看']")
                 ActionChains(available_driver).move_to_element(i).click().perform()
