@@ -27,6 +27,15 @@ with open(config.inject_js, 'r') as fp:
     inject = fp.read()
 
 
+def catch(func):
+    def wrapper(self, available_driver: WebDriver):
+        try:
+            return func(self, available_driver)
+        except:
+            logger.error(available_driver.current_url)
+    return wrapper
+
+
 class Tweet:
     post_id: int
     post_time: int
@@ -59,12 +68,12 @@ class Tweet:
             with open(Path(config.save) / f'{self.post_id}.md', 'w') as f:
                 f.write(self.text)
 
-    @logger.catch
+    @logger.catch()
     def commit_sqlite(self):
         if not is_id_exists(int(self.post_id)):
             insert_new_record(self.post_id, self.post_time, self.location)
 
-    @logger.catch
+    @catch
     def load_data(self, available_driver: WebDriver):
         self.driver = available_driver
 

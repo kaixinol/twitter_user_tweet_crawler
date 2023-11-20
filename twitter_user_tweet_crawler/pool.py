@@ -27,15 +27,12 @@ class ThreadPool:
                 callback.add_done_callback(lambda future: self._on_job_complete(i, callback))
                 return
 
-    @logger.catch
     def _on_job_complete(self, index, future):
         elements = self.browser.index(index)
         try:
             future.result()
         # By default, `concurrent.futures` will silently log errors but will not raise them
         # Throw the error directly
-        except NoSuchElementException:
-            pass
         finally:
             self.browser[elements].__dict__['is_using'] = False
             self.check_and_work()
