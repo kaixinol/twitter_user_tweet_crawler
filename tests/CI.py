@@ -18,7 +18,7 @@ config.load({"proxy": None, "max_threads": 2,
 
 class TestCase(unittest.TestCase):
     def test_spider(self):
-        browser = get_browser()
+        browser = get_browser(headless=True)
         browser.get('https://twitter.com/_CASTSTATION/status/1697029186777706544')
         sleep(20)
         element = browser.find_element(By.XPATH, "//*[contains(text(), '{}')]".format('miku miku oo ee oo'))
