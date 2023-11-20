@@ -102,10 +102,10 @@ class Tweet:
             self.img = available_driver.execute_script("return document.fileName;")
 
         def click_sensitive_element():
-            # TODO
             try:
-                items = available_driver.find_element(By.XPATH, "//span[text()='查看']")
-                ActionChains(available_driver).move_to_element(i).click().perform()
+                items = available_driver.find_elements(By.XPATH, "//span[text()='View']")
+                for i in items:
+                    ActionChains(available_driver).move_to_element(i).click().perform()
             except:
                 pass
             sleep(0.5)

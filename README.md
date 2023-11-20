@@ -12,6 +12,7 @@
 - Install `Chrome 119.0+`
 - Run the command `poetry install` in the directory with `pyproject.toml`
 - Configure `config.yaml`
+- Change the display language of your Twitter account to English (`More`>`Settings and Support`>`Account information`>`Languages`>`Display language`)
 ## Run
 1. Run the command in the upper-level directory with `pyproject.toml`
 ```commandline

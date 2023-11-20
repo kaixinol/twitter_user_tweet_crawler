@@ -12,6 +12,7 @@
 - 安装`Chrome 119.0+`
 - 在有`pyproject.toml`的目录运行指令`poetry install`
 - 配置`config.yaml`
+- 将你的推特帐号显示语言改为英文 （`More`>`Settings and Support`>`Account information`>`Languages`>`Display language`）
 ## 运行
 1. 在有`pyproject.toml`的上级目录运行指令
 ```commandline
