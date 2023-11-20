@@ -11,6 +11,7 @@ def get_tweet():
     config.load({"proxy": {"http": "socks5://127.0.0.1:7890", "https": "socks5://127.0.0.1:7890"}, "max_threads": 2,
                  "header": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, "
                                           "like Gecko) "}, "inject_js": "/media/Data/Project/twitter_user_tweet_crawler/script.js",
+
                  "save": "/media/Data/Project/twitter_user_tweet_crawler/output/", }
                 )
     from twitter_user_tweet_crawler.tweet import Tweet
