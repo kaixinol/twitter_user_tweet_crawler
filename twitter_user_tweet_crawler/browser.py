@@ -14,11 +14,6 @@ def get_browser(headless: bool = False, id=None) -> WebDriver:
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--window-size=1200x600"')
-
-    if not id:
-        chrome_options.add_argument(f'user-data-dir={config["user_data_dir"] + "/" + str(browsers := browsers + 1)}')
-    else:
-        chrome_options.add_argument(f'user-data-dir={config["user_data_dir"] + "/" + str(id)}')
     if headless:
         chrome_options.add_argument('--headless')
     driver = webdriver.Chrome(options=chrome_options)
