@@ -135,15 +135,11 @@ class Tweet:
             self.location = result.text + '(' + result.get_attribute('href') + ')'
         # 移除多余元素，不这样写的话用其他方式写会卡住，我不想深究了TAT
         available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
-        element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="react-root"]/div/div/div['
-                                                                       '2]/main//section/div/div/div['
-                                                                       '1]/div/div/article/div/div/div['
-                                                                       '3]//div[@role=\'group\' and @aria-label]')))
+        element = wait.until(EC.presence_of_element_located((By.XPATH, '//article[@data-testid=\"tweet\"]//div['
+                                                                       '@role=\'group\' and @aria-label]')))
         video = True
         try:
-            result = available_driver.find_element(By.XPATH, '//*[@id="react-root"]/div/div/div['
-                                                             '2]/main//section/div/div/div['
-                                                             '1]/div/div/article/div/div/div[3]//video')
+            result = available_driver.find_element(By.XPATH, '//article[@data-testid=\"tweet\"]//video')
         except:
             video = False
         if video:
@@ -151,9 +147,7 @@ class Tweet:
         click_sensitive_element()
         img = True
         try:
-            result = available_driver.find_elements(By.XPATH, '//*[@id="react-root"]/div/div/div['
-                                                              '2]/main//section/div/div/div['
-                                                              '1]/div/div/article/div/div/div[3]//img')
+            result = available_driver.find_elements(By.XPATH, '//article[@data-testid=\"tweet\"]//img')
         except:
             img = False
         for i in result:
@@ -163,9 +157,7 @@ class Tweet:
                 get_img()
                 break
         available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
-        element = available_driver.find_element(By.XPATH, '//*[@id="react-root"]/div/div/div[2]'
-                                                          '/main//section/div/div/div[1]/div/'
-                                                          'div/article/div/div/div[3]')
+        element = available_driver.find_element(By.XPATH, '//article[@data-testid=\"tweet\"]')
         self.post_time = int(datetime.fromisoformat(time_stamp.replace('Z', '+00:00')).timestamp())
         text = True
         try:
