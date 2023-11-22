@@ -75,7 +75,7 @@ class Tweet:
         if not is_id_exists(int(self.post_id)):
             insert_new_record(self.post_id, self.post_time, self.location)
 
-    # @catch
+    @catch
     def load_data(self, available_driver: WebDriver):
         self.driver = available_driver
 
@@ -137,12 +137,6 @@ class Tweet:
             if result.is_displayed():
                 return html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
 
-        def remove_elements(base_dom):
-            element = base_dom.find_element(By.XPATH, '//article[@data-testid=\"tweet\"]//div[@role=\'group\' and '
-                                                      '@aria-label]')
-            available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
-            element = base_dom.find_element(By.XPATH, '//*/time/ancestor::*[3]')
-            available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
         available_driver.get(self.link)
         available_driver.execute_script(inject)
         wait = WebDriverWait(available_driver, 30)
