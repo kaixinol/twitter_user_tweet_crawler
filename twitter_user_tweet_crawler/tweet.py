@@ -1,6 +1,5 @@
 import concurrent.futures
 import re
-import threading
 from datetime import datetime
 from pathlib import Path
 from time import sleep
@@ -101,6 +100,7 @@ class Tweet:
                 executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
                              available_driver.execute_script("return document.fileName;"))
             return list(set(available_driver.execute_script("return document.fileName;")))[0]
+
         def get_img(base_dom):
             result = base_dom.find_elements(By.XPATH, '//img')
             for i in result:
@@ -140,8 +140,7 @@ class Tweet:
         def get_via_app(base_dom):
             result: WebElement = base_dom.find_element(By.XPATH, '//*[@data-testid=\'card.wrapper\']//*['
                                                                  '@data-testid=\'card.layoutSmall.media\']')
-            if result.is_displayed():
-                return html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
+            return html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
 
         available_driver.get(self.link)
         available_driver.execute_script(inject)
