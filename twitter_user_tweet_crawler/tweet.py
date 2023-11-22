@@ -1,5 +1,6 @@
 import concurrent.futures
 import re
+import threading
 from datetime import datetime
 from pathlib import Path
 from time import sleep
@@ -90,14 +91,16 @@ class Tweet:
             elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
+            count: int = 0
             while available_driver.execute_script("return document.isParsed;") is False:
+                if (count := count + 1) > 10:
+                    raise
                 sleep(1)
                 ActionChains(available_driver).move_to_element(elemet).click().perform()
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
                              available_driver.execute_script("return document.fileName;"))
             return list(set(available_driver.execute_script("return document.fileName;")))[0]
-
         def get_img(base_dom):
             result = base_dom.find_elements(By.XPATH, '//img')
             for i in result:
@@ -106,7 +109,10 @@ class Tweet:
             elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
+            count: int = 0
             while available_driver.execute_script("return document.isParsed;") is False:
+                if (count := count + 1) > 10:
+                    raise
                 ActionChains(available_driver).move_to_element(elemet).click().perform()
                 sleep(1)
             with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -142,7 +148,7 @@ class Tweet:
         wait = WebDriverWait(available_driver, 30)
         wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid=\"tweet\"]//time")))
         dom = available_driver.find_element(By.XPATH, f"//a[contains(@href, '{self.post_id}')]/ancestor::*[6]"
-                                                            f"[descendant::time]")
+                                                      f"[descendant::time]")
         click_sensitive_element()
         self.post_time = get_time(dom)
         try:
@@ -162,7 +168,8 @@ class Tweet:
         except:
             self.via_app = None
         try:
-            self.text = replace_emoji(html2text(dom.find_element(By.XPATH, '//*[@data-testid="tweetText"]').get_attribute('innerHTML'))).strip()
+            self.text = replace_emoji(html2text(
+                dom.find_element(By.XPATH, '//*[@data-testid="tweetText"]').get_attribute('innerHTML'))).strip()
         except:
             self.text = ''
         if self.img:
