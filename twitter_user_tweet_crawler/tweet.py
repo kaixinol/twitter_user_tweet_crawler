@@ -11,6 +11,7 @@ from requests import get
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table
+from selenium.common import TimeoutException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -142,10 +143,20 @@ class Tweet:
                                                                  '@data-testid=\'card.layoutSmall.media\']')
             return html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
 
+        def wait_element(count: int = 0):
+            try:
+                wait = WebDriverWait(available_driver, 30)
+                wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid=\"tweet\"]//time")))
+            except TimeoutException:
+                if count > 3:
+                    raise
+                sleep(20)
+                available_driver.refresh()
+                wait_element(count + 1)
+
         available_driver.get(self.link)
         available_driver.execute_script(inject)
-        wait = WebDriverWait(available_driver, 30)
-        wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid=\"tweet\"]//time")))
+        wait_element()
         dom = available_driver.find_element(By.XPATH, f"//a[contains(@href, '{self.post_id}')]/ancestor::*[6]"
                                                       f"[descendant::time]")
         click_sensitive_element()
