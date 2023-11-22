@@ -12,11 +12,12 @@ def get_tweet():
                  "header": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, "
                                           "like Gecko) "}, "inject_js": "/media/Data/Project/twitter_user_tweet_crawler/script.js",
 
-                 "save": "/media/Data/Project/twitter_user_tweet_crawler/output/", }
-                )
+                 "save": "/media/Data/Project/twitter_user_tweet_crawler/output/",
+                 "user": "plantgazer"})
+
     from twitter_user_tweet_crawler.tweet import Tweet
     (Path(config.save) / 'res').mkdir(parents=True, exist_ok=True)
-    browser = get_browser()
+    browser = get_browser(headless=True)
     browser.get('https://twitter.com/404')
     cookie: list[dict]
     input("After logging in, press Enter")
@@ -25,7 +26,7 @@ def get_tweet():
             cookie = json.load(f)
         for i in cookie:
             browser.add_cookie(i)
-    Tweet('https://twitter.com/s_nample/status/1714535542984253491').load_data(browser)
+    Tweet('https://twitter.com/plantgazer/status/386902865815822336').load_data(browser)
     sleep(10000)
 
 

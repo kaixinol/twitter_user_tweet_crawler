@@ -5,7 +5,6 @@ from pathlib import Path
 from time import sleep
 from urllib.parse import quote, urlparse
 
-from emoji import is_emoji
 from html2text import html2text
 from loguru import logger
 from requests import get
@@ -15,6 +14,7 @@ from rich.table import Table
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -60,8 +60,9 @@ class Tweet:
 
     @logger.catch
     def download_res(self, url: str, path: str):
-        with open(Path(config.save) / 'res' / path, 'wb') as fp:
-            fp.write(get(url, proxies=config.proxy, headers=config.header).content)
+        if not (Path(config.save) / 'res' / path).exists():
+            with open(Path(config.save) / 'res' / path, 'wb') as fp:
+                fp.write(get(url, proxies=config.proxy, headers=config.header).content)
 
     @logger.catch
     def write_markdown(self):
@@ -74,7 +75,7 @@ class Tweet:
         if not is_id_exists(int(self.post_id)):
             insert_new_record(self.post_id, self.post_time, self.location)
 
-    @catch
+    # @catch
     def load_data(self, available_driver: WebDriver):
         self.driver = available_driver
 
@@ -83,107 +84,99 @@ class Tweet:
                 return re.sub(r'\!\[(.*?)\]\(https://.*\.twimg\.com/emoji/(.*?)\.svg\)', r'\1', string, re.MULTILINE)
             return string
 
-        def get_video():
-            try:
-                elemet = available_driver.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
-            except:
-                return
+        def get_video(base_dom: WebElement):
+            if not base_dom.find_element(By.XPATH, "//video").is_displayed():
+                raise
+            elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
             while available_driver.execute_script("return document.isParsed;") is False:
-                sleep(0.5)
+                sleep(1)
+                ActionChains(available_driver).move_to_element(elemet).click().perform()
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
                              available_driver.execute_script("return document.fileName;"))
-            self.video = available_driver.execute_script("return document.fileName;")[0]
+            return list(set(available_driver.execute_script("return document.fileName;")))[0]
 
-        def get_img():
-            try:
-                elemet = available_driver.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
-            except:
-                return
+        def get_img(base_dom):
+            result = base_dom.find_elements(By.XPATH, '//img')
+            for i in result:
+                if 'card_img' in i.get_attribute('src'):
+                    raise
+            elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
             while available_driver.execute_script("return document.isParsed;") is False:
-                sleep(0.5)
+                ActionChains(available_driver).move_to_element(elemet).click().perform()
+                sleep(1)
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
                              available_driver.execute_script("return document.fileName;"))
-            self.img = available_driver.execute_script("return document.fileName;")
+            return list(set(available_driver.execute_script("return document.fileName;")))
 
         def click_sensitive_element():
             try:
                 items = available_driver.find_elements(By.XPATH, "//span[text()='View']")
                 for i in items:
-                    ActionChains(available_driver).move_to_element(i).click().perform()
+                    ActionChains(available_driver).move_to_element(i).click(i).perform()
             except:
                 pass
             sleep(0.5)
 
-        result = None
+        def get_time(base_dom):
+            time_stamp = base_dom.find_element(By.XPATH, '//time').get_attribute('datetime')
+            return int(datetime.fromisoformat(time_stamp.replace('Z', '+00:00')).timestamp())
+
+        def get_location(base_dom):
+            result = base_dom.find_element(By.XPATH, '//a[contains(@href, \'place\')]')
+            return result.text + '(' + result.get_attribute('href') + ')'
+
+        def get_via_app(base_dom):
+            result: WebElement = base_dom.find_element(By.XPATH, '//*[@data-testid=\'card.wrapper\']//*['
+                                                                 '@data-testid=\'card.layoutSmall.media\']')
+            if result.is_displayed():
+                return html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
+
+        def remove_elements(base_dom):
+            element = base_dom.find_element(By.XPATH, '//article[@data-testid=\"tweet\"]//div[@role=\'group\' and '
+                                                      '@aria-label]')
+            available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
+            element = base_dom.find_element(By.XPATH, '//*/time/ancestor::*[3]')
+            available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
         available_driver.get(self.link)
         available_driver.execute_script(inject)
-        wait = WebDriverWait(available_driver, 20)
-        element = wait.until(EC.presence_of_element_located((By.XPATH, '//*/time/ancestor::*[3]')))
-        time_stamp = element.find_element(By.XPATH, '//time').get_attribute('datetime')
-        location = True
-        try:
-            result = element.find_element(By.XPATH, '//a[contains(@href, \'place\')]')
-        except:
-            location = False
-        if location:
-            self.location = result.text + '(' + result.get_attribute('href') + ')'
-        # 移除多余元素，不这样写的话用其他方式写会卡住，我不想深究了TAT
-        available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
-        element = wait.until(EC.presence_of_element_located((By.XPATH, '//article[@data-testid=\"tweet\"]//div['
-                                                                       '@role=\'group\' and @aria-label]')))
-        video = True
-        try:
-            result = available_driver.find_element(By.XPATH, '//article[@data-testid=\"tweet\"]//video')
-        except:
-            video = False
-        if video:
-            get_video()
+        wait = WebDriverWait(available_driver, 30)
+        wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid=\"tweet\"]//time")))
+        dom = available_driver.find_element(By.XPATH, f"//a[contains(@href, '{self.post_id}')]/ancestor::*[6]")
         click_sensitive_element()
-        img = True
+        self.post_time = get_time(dom)
         try:
-            result = available_driver.find_elements(By.XPATH, '//article[@data-testid=\"tweet\"]//img')
+            self.video = get_video(dom)
         except:
-            img = False
-        for i in result:
-            if (img and 'card_img' not in i.get_attribute('src')
-                    and not is_emoji(i.get_attribute('alt'))
-                    and 'profile_images' not in i.get_attribute('src')):
-                get_img()
-                break
-        available_driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", element)
-        element = available_driver.find_element(By.XPATH, '//article[@data-testid=\"tweet\"]')
-        self.post_time = int(datetime.fromisoformat(time_stamp.replace('Z', '+00:00')).timestamp())
-        text = True
+            self.video = None
         try:
-            result = element.find_element(By.XPATH, '//*[@data-testid="tweetText"]').get_attribute('innerHTML')
+            self.img = get_img(dom)
         except:
-            text = False
-        if text:
-            self.text = replace_emoji(html2text(result)).strip()
-        via_app = True
+            self.img = None
         try:
-            result = element.find_element(By.XPATH, '//*[@data-testid=\'card.wrapper\']//*['
-                                                    '@data-testid=\'card.layoutSmall.media\']')
-            is_visible = available_driver.execute_script("return arguments[0].offsetParent !== null;", result)
-            if not is_visible:
-                raise
+            self.location = get_location(dom)
         except:
-            via_app = False
-        if via_app:
-            self.via_app = html2text(result.get_attribute('innerHTML')).replace('\n\n', '\n')
+            self.location = None
+        try:
+            self.via_app = get_via_app(dom)
+        except:
+            self.via_app = None
+        try:
+            self.text = replace_emoji(html2text(dom.find_element(By.XPATH, '//*[@data-testid="tweetText"]').get_attribute('innerHTML'))).strip()
+        except:
+            self.text = ''
         if self.img:
             for i in self.img:
                 self.text += f'\n![]({config.save}/res/{quote(str(i))})\n'
-        if video:
+        if self.video:
             self.text += f'<video src="{config.save}/res/{quote(str(self.video))}"></video>\n'
         if self.location:
-            self.text += 'Location:' + self.location + '\n'
+            self.text += '\nLocation:' + self.location + '\n'
         if self.via_app:
             self.text += self.via_app
         self.print()
