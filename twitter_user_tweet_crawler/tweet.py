@@ -141,7 +141,8 @@ class Tweet:
         available_driver.execute_script(inject)
         wait = WebDriverWait(available_driver, 30)
         wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid=\"tweet\"]//time")))
-        dom = available_driver.find_element(By.XPATH, f"//a[contains(@href, '{self.post_id}')]/ancestor::*[6]")
+        dom = available_driver.find_element(By.XPATH, f"//a[contains(@href, '{self.post_id}')]/ancestor::*[6]"
+                                                            f"[descendant::time]")
         click_sensitive_element()
         self.post_time = get_time(dom)
         try:
