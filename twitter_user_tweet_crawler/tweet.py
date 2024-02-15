@@ -28,6 +28,10 @@ with open(config.inject_js, 'r') as fp:
     inject = fp.read()
 
 
+class CrawlError(Exception):
+    pass
+
+
 def catch(func):
     def wrapper(self, available_driver: WebDriver):
         try:
@@ -87,14 +91,14 @@ class Tweet:
 
         def get_video(base_dom: WebElement):
             if not base_dom.find_element(By.XPATH, "//video").is_displayed():
-                raise
+                raise CrawlError("Can't crawl videos")
             elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
             count: int = 0
             while available_driver.execute_script("return document.isParsed;") is False:
                 if (count := count + 1) > 10:
-                    raise
+                    raise CrawlError("Timeout Error")
                 sleep(1)
                 ActionChains(available_driver).move_to_element(elemet).click().perform()
             with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -106,14 +110,14 @@ class Tweet:
             result = base_dom.find_elements(By.XPATH, '//img')
             for i in result:
                 if 'card_img' in i.get_attribute('src'):
-                    raise
+                    raise CrawlError("Can't crawl pictures")
             elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
             sleep(1)
             ActionChains(available_driver).move_to_element(elemet).click().perform()
             count: int = 0
             while available_driver.execute_script("return document.isParsed;") is False:
                 if (count := count + 1) > 10:
-                    raise
+                    raise CrawlError("Timeout Error")
                 ActionChains(available_driver).move_to_element(elemet).click().perform()
                 sleep(1)
             with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -149,7 +153,7 @@ class Tweet:
                 wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid=\"tweet\"]//time")))
             except TimeoutException:
                 if count > 3:
-                    raise
+                    raise CrawlError("Waiting time is too long, timeout")
                 sleep(20)
                 available_driver.refresh()
                 wait_element(count + 1)

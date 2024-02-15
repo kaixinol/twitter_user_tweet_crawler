@@ -94,6 +94,6 @@ if __name__ == "__main__":
     logger.add(work_directory / "log/{time:YYYY-MM-DD}.log", rotation="00:00",
                level="ERROR",
                encoding="utf-8", format="{time} | {level} | {message}", enqueue=True)
-    Path(Path(__file__).absolute().parent / 'output/res').mkdir(parents=True, exist_ok=True)
+    (Path(__file__).absolute().parent / 'output/res').mkdir(parents=True, exist_ok=True)
     config.load("config.yaml")
     main()
