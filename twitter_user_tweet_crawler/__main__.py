@@ -73,7 +73,7 @@ def main():
 
     while True:
         # Looping drop-down scroll bar
-        driver.execute_script("window.scrollBy(0, 100)")
+        driver.execute_script("window.scrollBy(0, 300)")
         sleep(1)
         try:
             links = get_items_need_handle()
@@ -94,5 +94,6 @@ if __name__ == "__main__":
     logger.add(work_directory / "log/{time:YYYY-MM-DD}.log", rotation="00:00",
                level="ERROR",
                encoding="utf-8", format="{time} | {level} | {message}", enqueue=True)
+    (Path(__file__).absolute().parent / 'output/res').mkdir(parents=True, exist_ok=True)
     config.load("config.yaml")
     main()
