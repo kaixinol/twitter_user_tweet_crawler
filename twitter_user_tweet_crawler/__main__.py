@@ -41,7 +41,7 @@ def main():
     selector = (By.XPATH, '//*/div[2]/div/div[3]/a[@role="link"]')
     (Path(config.save) / 'res').mkdir(exist_ok=True, parents=True)
 
-    driver = get_browser()
+    driver = get_browser(headless=config['main_driver_headless'])
 
     tweet_executor = get_executor(config['max_threads'])
     work_list = get_multiple_browsers(config['max_threads'], headless=True)
