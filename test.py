@@ -19,7 +19,7 @@ def get_tweet():
     from twitter_user_tweet_crawler.tweet import Tweet
     (Path(config.save) / 'res').mkdir(parents=True, exist_ok=True)
     browser = get_browser(headless=True)
-    browser.get('https://twitter.com/404')
+    browser.get('https://x.com/404')
     cookie: list[dict]
     input("After logging in, press Enter")
     if (work_directory / 'cookie.json').exists():
@@ -27,7 +27,7 @@ def get_tweet():
             cookie = json.load(f)
         for i in cookie:
             browser.add_cookie(i)
-    Tweet('https://twitter.com/plantgazer/status/692426044368908289').load_data(browser)
+    Tweet('https://x.com/plantgazer/status/692426044368908289').load_data(browser)
     sleep(10000)
 
 

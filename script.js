@@ -11,9 +11,9 @@
 // @version     1.14
 // @author      AMANE
 // @namespace   none
-// @match       https://twitter.com/*
-// @match       https://mobile.twitter.com/*
-// @match       https://tweetdeck.twitter.com/*
+// @match       https://x.com/*
+// @match       https://mobile.x.com/*
+// @match       https://tweetdeck.x.com/*
 // @grant       GM_registerMenuCommand
 // @grant       GM_setValue
 // @grant       GM_getValue
