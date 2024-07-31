@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from ..util.config import work_directory
+from ..util.config import config
 import schedule
 
-engine = create_engine(f"sqlite:///{str(work_directory)}/index.db", echo=False)
+engine = create_engine(f"sqlite:///{config['save']}/index.db", echo=False)
 Base = declarative_base()
 
 

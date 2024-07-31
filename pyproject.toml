@@ -40,7 +40,6 @@ dependencies = [
     "sqlalchemy<3.0.0,>=2.0.23",
     "pyyaml<7.0.0,>=6.0.1",
     "lxml<5.0.0,>=4.9.3",
-    "schedule>=1.2.2",
 ]
 name = "twitter_user_tweet_crawler"
 version = "1.1.0"
