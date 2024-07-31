@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from ..util.config import work_directory
+import schedule
 
 engine = create_engine(f"sqlite:///{str(work_directory)}/index.db", echo=False)
 Base = declarative_base()
@@ -25,6 +26,8 @@ def insert_new_record(id_value: int, time_value: int, location_value: None | str
     session.add(new_record)
     session.commit()
 
+
+schedule.every().minutes.do(lambda: session.commit())
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)

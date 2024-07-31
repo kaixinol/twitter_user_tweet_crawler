@@ -1,6 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
-
+from .util.lock import mutex, update
 
 
 def get_browser(headless: bool = False) -> WebDriver:
@@ -13,7 +13,8 @@ def get_browser(headless: bool = False) -> WebDriver:
     if headless:
         chrome_options.add_argument('--headless')
     driver = webdriver.Chrome(options=chrome_options)
-    driver.__dict__['is_using'] = False
+    with mutex:
+        update({id(driver): False})
     return driver
 
 

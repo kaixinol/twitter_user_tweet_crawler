@@ -5,6 +5,8 @@ from typing import Callable
 from rich.prompt import Confirm
 from selenium.webdriver.chrome.webdriver import WebDriver
 
+from twitter_user_tweet_crawler.util.lock import mutex, get, update
+
 slow_mode = Confirm.ask("Do you want to enable slow mode?", default=False)
 
 
@@ -21,13 +23,14 @@ class ThreadPool:
         if not self.jobs:
             return
         for i in self.browser:
-            if not i.__dict__['is_using']:
-                i: WebDriver
-                i.__dict__['is_using'] = True
-                job = self.jobs.pop(0)
-                callback: Future = self.pool.submit(job, i)
-                callback.add_done_callback(lambda future: self._on_job_complete(i, callback))
-                return
+            with mutex:
+                if not get()[id(i)]:
+                    i: WebDriver
+                    update({id(i): True})
+                    job = self.jobs.pop(0)
+                    callback: Future = self.pool.submit(job, i)
+                    callback.add_done_callback(lambda future: self._on_job_complete(i, callback))
+                    return
 
     def _on_job_complete(self, index, future):
         elements = self.browser.index(index)
@@ -37,6 +40,8 @@ class ThreadPool:
         # Throw the error directly
         finally:
             if slow_mode:
-                sleep(30)
-            self.browser[elements].__dict__['is_using'] = False
+                sleep(10)
+            with mutex:
+                update({id(self.browser[elements]): False})
+
             self.check_and_work()

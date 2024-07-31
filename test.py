@@ -10,7 +10,8 @@ def get_tweet():
     set_work_directory(Path(__file__).absolute().parent)
     config.load({"proxy": {"http": "socks5://127.0.0.1:7890", "https": "socks5://127.0.0.1:7890"}, "max_threads": 2,
                  "header": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, "
-                                          "like Gecko) "}, "inject_js": "/media/Data/Project/twitter_user_tweet_crawler/script.js",
+                                          "like Gecko) "}, "inject_js": "/media/Data/Project"
+                                                                        "/twitter_user_tweet_crawler/script.js",
 
                  "save": "/media/Data/Project/twitter_user_tweet_crawler/output/",
                  "user": "plantgazer"})
@@ -26,7 +27,7 @@ def get_tweet():
             cookie = json.load(f)
         for i in cookie:
             browser.add_cookie(i)
-    Tweet('https://twitter.com/plantgazer/status/386902865815822336').load_data(browser)
+    Tweet('https://twitter.com/plantgazer/status/692426044368908289').load_data(browser)
     sleep(10000)
 
 

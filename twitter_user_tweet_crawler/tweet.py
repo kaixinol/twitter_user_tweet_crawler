@@ -18,7 +18,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-
 from .util.config import config
 from .util.sql import insert_new_record, is_id_exists
 
