@@ -11,7 +11,7 @@ def get_browser(headless: bool = False) -> WebDriver:
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--window-size=1200x600')
     if headless:
-        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--headless=new')
     driver = webdriver.Chrome(options=chrome_options)
     with mutex:
         update({id(driver): False})
