@@ -1,11 +1,10 @@
 proxy:
-  http: socks5://127.0.0.1:7890 # null
-  https: socks5://127.0.0.1:7890
+  http: socks5://127.0.0.1:7897 # null
+  https: socks5://127.0.0.1:7897
 max_threads: 2
 headful: 1
 header:
   User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     like Gecko) Chrome/118.0.0.0 Safari/537.36
-inject_js: "/media/Data/Project/twitter_user_tweet_crawler/script.js"
-save: "/media/Data/Project/twitter_user_tweet_crawler/save"
+save: "/mnt/data/Project/twitter_user_tweet_crawler/save"
 user: plantgazer

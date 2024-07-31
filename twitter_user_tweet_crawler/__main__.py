@@ -49,7 +49,7 @@ def main():
         work_list.extend(get_multiple_browsers(config['headful'], headless=False))
     wait_list = []
     for i in work_list:
-        wait_list.append(tweet_executor.submit(i.get, 'https://twitter.com/404'))
+        wait_list.append(tweet_executor.submit(i.get, 'https://x.com/404'))
     for ii in wait_list:
         ii.result()
     driver.get('https://twitter.com/404')

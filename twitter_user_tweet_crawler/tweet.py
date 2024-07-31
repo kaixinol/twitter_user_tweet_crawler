@@ -21,9 +21,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from .util.config import config
 from .util.sql import insert_new_record, is_id_exists
 
-inject: str
-inject_js = config.inject_js
-with open(config.inject_js, 'r') as fp:
+inject_js = Path(__file__).parent / 'script.js'
+with open(inject_js, 'r') as fp:
     inject = fp.read()
 
 
