@@ -1,3 +1,5 @@
+*Another better project of mine: [offline-twitter-cyber-fortune-teller-py](https://github.com/kaixinol/offline-twitter-cyber-fortune-teller-py)*
+-
 > [!WARNING]
 > Do not leak your `cookie.json`, this will lead to your Twitter account being stolen.
 
