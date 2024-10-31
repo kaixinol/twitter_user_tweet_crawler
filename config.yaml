@@ -9,3 +9,7 @@ header:
     like Gecko) Chrome/118.0.0.0 Safari/537.36
 save: "/mnt/data/Project/twitter_user_tweet_crawler/save"
 user: plantgazer
+click: |
+  let element = document.querySelector('div[data-testid="cellInnerDiv"]:nth-of-type(1) div[class*="tmd-down"]');
+  element.addEventListener('click', () => hasClickEvent = true);
+  element.dispatchEvent(new Event('click'));

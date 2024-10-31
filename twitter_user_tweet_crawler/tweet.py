@@ -90,15 +90,12 @@ class Tweet:
         def get_video(base_dom: WebElement):
             if not base_dom.find_element(By.XPATH, "//video").is_displayed():
                 raise CrawlError("Can't crawl videos")
-            elemet: WebElement = base_dom.find_element(By.XPATH, "//div[contains(@class, \"tmd-down\")]")
-            sleep(1)
-            ActionChains(available_driver).move_to_element(elemet).click().perform()
+            available_driver.execute_script(config['click'])
             count: int = 0
             while available_driver.execute_script("return document.isParsed;") is False:
                 if (count := count + 1) > 10:
                     raise CrawlError("Timeout Error")
                 sleep(1)
-                ActionChains(available_driver).move_to_element(elemet).click().perform()
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 executor.map(self.download_res, available_driver.execute_script("return document.fileList;"),
                              available_driver.execute_script("return document.fileName;"))

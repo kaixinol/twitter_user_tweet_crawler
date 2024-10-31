@@ -8,10 +8,9 @@ class Config:
     max_threads: int
     user_data_dir: str
     header: dict
-    inject_js: str
     save: str
     user: str
-
+    click: str
     def load(self, setting: dict | str | Path):
         if isinstance(setting, dict):
             self.__dict__.update(setting)
