@@ -1,4 +1,4 @@
-*Another better project of mine: [offline-twitter-cyber-fortune-teller-py](https://github.com/kaixinol/offline-twitter-cyber-fortune-teller-py)*
+⚠️Warning: This project uses browser-simulated clicks to retrieve resources instead of using the GraphQL API, which may result in lower efficiency.
 -
 > [!WARNING]
 > Do not leak your `cookie.json`, this will lead to your Twitter account being stolen.
